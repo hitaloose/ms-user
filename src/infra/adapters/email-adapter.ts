@@ -1,28 +1,32 @@
-import axios, { AxiosInstance } from 'axios'
+import {PubSub} from '@google-cloud/pubsub'
 
 import { EmailSender, EmailSenderInput } from '../../data/contracts/email-sender'
 
 export class EmailAdapter implements EmailSender {
-  private client: AxiosInstance
+  private pubsub: PubSub
 
   constructor(baseURL: string) {
-    this.client = axios.create({ baseURL })
+    this.pubsub = new PubSub();
   }
 
   async send(data: EmailSenderInput): Promise<void> {
-    await this.client.post('/send-email',
-      {
-        to: {
-          name: data.to.name,
-          email: data.to.email
-        },
-        from: {
-          name: "Default send email",
-          email: "noreply@email.com"
-        },
-        subject: data.subject,
-        content: data.content
-      }
-    )
+    const topic = this.pubsub.topic('SEND_EMAIL');
+
+    const payload = {
+      to: {
+        name: data.to.name,
+        email: data.to.email
+      },
+      from: {
+        name: "Default send email",
+        email: "noreply@email.com"
+      },
+      subject: data.subject,
+      content: data.content
+    }
+
+    const messageBuffer = Buffer.from(JSON.stringify(payload), 'utf8');
+
+    await topic.publish(messageBuffer);
   }
 }
