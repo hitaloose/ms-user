@@ -1,17 +1,15 @@
-import {PubSub} from '@google-cloud/pubsub'
+import { PubSub, Topic } from '@google-cloud/pubsub'
 
 import { EmailSender, EmailSenderInput } from '../../data/contracts/email-sender'
 
 export class EmailAdapter implements EmailSender {
-  private pubsub: PubSub
+  private readonly topic: Topic
 
-  constructor(baseURL: string) {
-    this.pubsub = new PubSub();
+  constructor(topicName: string) {
+    this.topic = new PubSub().topic(topicName);
   }
 
   async send(data: EmailSenderInput): Promise<void> {
-    const topic = this.pubsub.topic('SEND_EMAIL');
-
     const payload = {
       to: {
         name: data.to.name,
@@ -27,6 +25,6 @@ export class EmailAdapter implements EmailSender {
 
     const messageBuffer = Buffer.from(JSON.stringify(payload), 'utf8');
 
-    await topic.publish(messageBuffer);
+    await this.topic.publish(messageBuffer);
   }
 }

@@ -1,3 +1,5 @@
+import './env'
+
 import express from 'express'
 import { controllerAdapter } from './adapters/controller-adapter'
 import { makeRegisterNewUserController } from './factories/make-register-new-user-controller'

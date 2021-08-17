@@ -17,6 +17,8 @@ steps:
   - functions
   - deploy
   - user-hml
+  - --set-env-vars
+  - NODE_ENV=acceptance
   - --runtime=nodejs14
   - --source=.
   - --entry-point=app
